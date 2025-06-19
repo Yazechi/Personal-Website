@@ -1,6 +1,6 @@
 # My Personal Site
 
-A personal dashboard and portfolio built with PHP and Tailwind CSS. The application allows you to manage a portfolio, save memos, and track projects using a MySQL database.
+A personal and simple dashboard and portfolio built with PHP and Tailwind CSS. The application allows you to manage a portfolio, save memos, and track projects using a MySQL database.
 
 ---
 
