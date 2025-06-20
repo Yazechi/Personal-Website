@@ -16,7 +16,8 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 switch ($action) {
     case 'get':
-        $result = $conn->query("SELECT id, name, status FROM projects ORDER BY created_at DESC");
+        // ** FIX: Added 'created_at' to the SELECT statement **
+        $result = $conn->query("SELECT id, name, status, created_at FROM projects ORDER BY created_at DESC");
         echo json_encode($result->fetch_all(MYSQLI_ASSOC));
         break;
 

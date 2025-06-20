@@ -37,8 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- API FUNCTIONS ---
-
-// Generic fetch handler for cleaner code
 async function apiRequest(url, options = {}) {
     try {
         const response = await fetch(url, options);
@@ -49,7 +47,7 @@ async function apiRequest(url, options = {}) {
         return response.json();
     } catch (error) {
         console.error('API Request Failed:', error);
-        alert('An error occurred: ' + error.message); // Simple error feedback
+        alert('An error occurred: ' + error.message);
         return null;
     }
 }
@@ -62,13 +60,30 @@ async function loadMemos() {
     const container = document.getElementById('memos-container');
     container.innerHTML = '';
     if (memos.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No memos yet.</p>';
+        container.innerHTML = '<p class="text-slate-400 md:col-span-3 text-center">No memos yet. Add one above to get started!</p>';
     } else {
         memos.forEach(memo => {
-            const el = document.createElement('div');
-            el.className = 'bg-white dark:bg-gray-800 p-4 rounded-lg shadow transition transform hover:-translate-y-1';
-            el.innerHTML = `<p class="text-gray-800 dark:text-gray-200">${memo.content}</p><small class="text-gray-400 dark:text-gray-500">${new Date(memo.created_at).toLocaleString()}</small>`;
-            container.appendChild(el);
+            // Make date string universally compatible and more detailed
+            let compatibleDate = 'Invalid date';
+            if (memo.created_at) {
+                compatibleDate = new Date(memo.created_at.replace(' ', 'T')).toLocaleString([], {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            }
+
+            const memoCard = document.createElement('div');
+            // Gradient border on hover for a vibrant look
+            memoCard.className = "p-0.5 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-700 hover:from-sky-500 hover:to-cyan-500 rounded-xl transition-all duration-300 transform hover:-translate-y-1";
+
+            memoCard.innerHTML = `
+                <div class="bg-slate-800 rounded-lg p-6 h-full flex flex-col justify-between">
+                    <p class="text-slate-200 leading-relaxed flex-grow">${memo.content}</p>
+                    <div class="mt-4 pt-4 border-t border-slate-700 text-right">
+                        <p class="text-xs text-slate-500">${compatibleDate}</p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(memoCard);
         });
     }
 }
@@ -90,18 +105,37 @@ async function loadProjects() {
     const container = document.getElementById('projects-container');
     container.innerHTML = '';
     if (projects.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No projects yet.</p>';
+        container.innerHTML = '<p class="text-slate-400 md:col-span-3 text-center">No projects yet. Add one above to get started!</p>';
     } else {
         projects.forEach(project => {
-            const el = document.createElement('div');
-            el.className = 'bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex justify-between items-center';
-            el.innerHTML = `
-                <span class="${project.status === 'completed' ? 'line-through text-gray-500' : ''}">${project.name}</span>
-                <div>
-                    <button onclick="updateProjectStatus(${project.id}, 'completed')" class="text-green-500 hover:text-green-700 p-1" title="Complete">✓</button>
-                    <button onclick="deleteProject(${project.id})" class="text-red-500 hover:text-red-700 p-1" title="Delete">✗</button>
-                </div>`;
-            container.appendChild(el);
+            const isCompleted = project.status === 'completed';
+            const statusClass = isCompleted ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white' : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white';
+            const cardWrapperClass = isCompleted ? 'p-0.5 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl' : 'p-0.5 bg-gradient-to-br from-slate-700 via-slate-800 to-slate-700 hover:from-purple-600 hover:to-indigo-600 rounded-xl';
+
+            let compatibleDate = 'Invalid date';
+            if (project.created_at) {
+                compatibleDate = new Date(project.created_at.replace(' ', 'T')).toLocaleDateString();
+            }
+
+            const projectCardWrapper = document.createElement('div');
+            projectCardWrapper.className = `${cardWrapperClass} transition-all duration-300 transform hover:-translate-y-1`;
+            
+            projectCardWrapper.innerHTML = `
+                <div class="bg-slate-800 rounded-lg p-6 h-full flex flex-col justify-between">
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-semibold px-3 py-1 rounded-full shadow-lg ${statusClass}">${project.status.charAt(0).toUpperCase() + project.status.slice(1)}</span>
+                            <p class="text-xs text-slate-500">${compatibleDate}</p>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mt-4 ${isCompleted ? 'line-through text-slate-500' : ''}">${project.name}</h3>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-700 flex gap-2">
+                        <button onclick="updateProjectStatus(${project.id}, 'completed')" class="w-full text-center rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${isCompleted ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}" ${isCompleted ? 'disabled' : ''}>Mark as Complete</button>
+                        <button onclick="deleteProject(${project.id})" class="flex-shrink-0 rounded-lg p-2 bg-red-600/50 hover:bg-red-600/80 text-white transition-colors" title="Delete Project"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(projectCardWrapper);
         });
     }
 }
