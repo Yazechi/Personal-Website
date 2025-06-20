@@ -42,7 +42,8 @@ A personal and simple dashboard and portfolio built with PHP and Tailwind CSS. T
 5.  **Run the application:**
     * Start your Apache and MySQL services.
     * Navigate to `http://localhost/your-project-folder/` in your browser.
-    * ![image](https://github.com/user-attachments/assets/fb639fce-a5b9-492a-ba00-7c6d6ca08bac)
+    * ![image](https://github.com/user-attachments/assets/5c6c6b7f-2215-459e-b884-5741f8ac2789)
+
 
 
 ---
